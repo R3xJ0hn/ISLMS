@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useState} from "react";
 import Login from "./pages/LoginPage";
 import Grades from "./pages/StudentGradesViewPage";
 
