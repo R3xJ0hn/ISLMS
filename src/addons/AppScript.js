@@ -12,7 +12,10 @@ function doGet(e) {
   return sendJSON({ error: "Invalid action" });
 }
 
-//=== LOGIN HANDLER ===
+/**
+ * === LOGIN HANDLER ===
+ * Generates a session token and maps it to the logged-in student.
+ */
 function handleLogin(e) {
   const email = e.parameter.email?.trim();
   const password = e.parameter.password?.trim();
@@ -52,7 +55,7 @@ function handleLogin(e) {
   if (!studentNo)
     return sendJSON({ success: false, message: "Missing Student No for this user" });
 
-  // Store token
+  // --- Token Store (persistent) ---
   let tokenSheet = ss.getSheetByName("TokenStore");
   if (!tokenSheet) {
     tokenSheet = ss.insertSheet("TokenStore");
@@ -74,7 +77,6 @@ function handleLogin(e) {
   });
 }
 
-//=== DATA RETRIEVAL HANDLER ===
 function handleGetData(e) {
   const token = e.parameter.token;
   if (!token) return sendJSON({ error: "Missing token" });
@@ -119,7 +121,9 @@ function handleGetData(e) {
 }
 
 
-// Build student object with grades
+/**
+ * Builds a single student's record including subject blocks and grades.
+ */
 function buildStudentObject(row, headers, nameCol, subjectNames, subjectLabels) {
   const student = {
     StudentNo: String(row[headers.indexOf("STDNT NO")]).trim(),
@@ -143,6 +147,11 @@ function buildStudentObject(row, headers, nameCol, subjectNames, subjectLabels) 
       currentGrades = [];
     }
 
+    if (label.toLowerCase() === "note") {
+
+      
+    };
+
     currentGrades.push({ Label: label, Value: value });
   }
 
@@ -153,7 +162,9 @@ function buildStudentObject(row, headers, nameCol, subjectNames, subjectLabels) 
   return student;
 }
 
-// Utility: Return JSON response
+/**
+ * Utility: Return JSON
+ */
 function sendJSON(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(
     ContentService.MimeType.JSON

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { useState} from "react";
 import Login from "./pages/LoginPage";
 import Grades from "./pages/StudentGradesViewPage";
+import UnderMaintenancePage from "./pages/UnderMaintenancePage";
 
 export default function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem("session_token"));
@@ -19,6 +20,9 @@ export default function App() {
     setToken(null);
     setUser(null);
   }
+
+  // If you want to enable maintenance mode, uncomment the following line:
+  return <UnderMaintenancePage />;
 
   return (
     <Router>
