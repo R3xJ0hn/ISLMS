@@ -87,36 +87,56 @@ function handleGetData(e) {
 
   const tokenData = tokenSheet.getDataRange().getValues();
   const tokenRow = tokenData.find((r) => r[0] === token);
-
   if (!tokenRow) return sendJSON({ error: "Invalid or expired token" });
 
   const studentNo = String(tokenRow[1]).trim();
   if (!studentNo) return sendJSON({ error: "Invalid student linked to token" });
 
-  const sheetName = e.parameter.sheet || "2-2526";
+  // === NEW LOGIC: Determine sheetName from Credentials!AK ===
+  const credSheet = ss.getSheetByName("Credentials");
+  if (!credSheet) return sendJSON({ error: "Missing 'Credentials' sheet" });
+
+  const credData = credSheet.getDataRange().getDisplayValues();
+  const headers = credData[0].map((h) => h.trim().toLowerCase());
+  const studentNoCol = headers.indexOf("student number");
+  const sheetNameCol = 35; // Column AK → 1-based index 37 → 0-based index 36
+
+  if (studentNoCol === -1)
+    return sendJSON({ error: "Missing 'Student Number' column in Credentials" });
+
+  const studentRow = credData.find(
+    (r, i) => i > 0 && String(r[studentNoCol]).trim().toLowerCase() === studentNo.toLowerCase()
+  );
+
+  if (!studentRow)
+    return sendJSON({ error: `Student '${studentNo}' not found in Credentials sheet` });
+
+  const sheetName = studentRow[sheetNameCol]?.trim();
+  if (!sheetName)
+    return sendJSON({ error: `No sheet name found in column AK for student '${studentNo}'` });
+
+  // === Continue with the rest of your logic ===
   const sheet = ss.getSheetByName(sheetName);
   if (!sheet) return sendJSON({ error: `Sheet '${sheetName}' not found` });
 
   const data = sheet.getDataRange().getDisplayValues();
   if (data.length < 4) return sendJSON({ error: "Not enough data rows" });
 
-  const headers = data[2];
+  const headers2 = data[2];
   const subjectNames = data[2].slice(2);
   const subjectLabels = data[3].slice(2);
   const rows = data.slice(4);
 
-  const studentNoCol = headers.indexOf("STDNT NO");
-  const nameCol = headers.indexOf("STUDENT NAME");
-
-  if (studentNoCol === -1) return sendJSON({ error: "Missing 'STDNT NO' column" });
+  const studentNoCol2 = headers2.indexOf("STDNT NO");
+  const nameCol = headers2.indexOf("STUDENT NAME");
+  if (studentNoCol2 === -1) return sendJSON({ error: "Missing 'STDNT NO' column" });
 
   const foundRow = rows.find(
-    (r) => String(r[studentNoCol]).trim().toLowerCase() === studentNo.toLowerCase()
+    (r) => String(r[studentNoCol2]).trim().toLowerCase() === studentNo.toLowerCase()
   );
-
   if (!foundRow) return sendJSON({ error: `Student '${studentNo}' not found` });
 
-  const student = buildStudentObject(foundRow, headers, nameCol, subjectNames, subjectLabels);
+  const student = buildStudentObject(foundRow, headers2, nameCol, subjectNames, subjectLabels);
   return sendJSON(student);
 }
 
@@ -146,11 +166,6 @@ function buildStudentObject(row, headers, nameCol, subjectNames, subjectLabels) 
       currentSubject = subject;
       currentGrades = [];
     }
-
-    if (label.toLowerCase() === "note") {
-
-      
-    };
 
     currentGrades.push({ Label: label, Value: value });
   }
