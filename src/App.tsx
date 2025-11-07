@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { useState} from "react";
 import Login from "./pages/LoginPage";
 import Grades from "./pages/StudentGradesViewPage";
@@ -24,29 +25,23 @@ export default function App() {
   //return <UnderMaintenancePage />;
 
   return (
-    <Router>
+    <><SpeedInsights /><Router>
       <Routes>
         <Route
           path="/"
-          element={
-            token ? (
-              <Navigate to="/grades" replace />
-            ) : (
-              <Login onLoginSuccess={handleLoginSuccess} />
-            )
-          }
-        />
+          element={token ? (
+            <Navigate to="/grades" replace />
+          ) : (
+            <Login onLoginSuccess={handleLoginSuccess} />
+          )} />
         <Route
           path="/grades"
-          element={
-            token ? (
-              <Grades token={token!} user={user!} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
-        />
+          element={token ? (
+            <Grades token={token!} user={user!} onLogout={handleLogout} />
+          ) : (
+            <Navigate to="/" replace />
+          )} />
       </Routes>
-    </Router>
+    </Router></>
   );
 }
