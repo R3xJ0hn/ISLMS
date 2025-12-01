@@ -1,17 +1,27 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { useState} from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/react"; // ✅ FIXED IMPORT
+import { useState } from "react";
 import Login from "./pages/LoginPage";
 import Grades from "./pages/StudentGradesViewPage";
 import UnderMaintenancePage from "./pages/UnderMaintenancePage";
 
 export default function App() {
-  const [token, setToken] = useState<string | null>(localStorage.getItem("session_token"));
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("session_token")
+  );
   const [user, setUser] = useState<{ name: string; email: string } | null>(
     JSON.parse(localStorage.getItem("session_user") || "null")
   );
 
-  function handleLoginSuccess(newToken: string, newUser: { name: string; email: string }) {
+  function handleLoginSuccess(
+    newToken: string,
+    newUser: { name: string; email: string }
+  ) {
     setToken(newToken);
     setUser(newUser);
   }
@@ -23,26 +33,39 @@ export default function App() {
   }
 
   // Maintenance mode toggle
-  return <UnderMaintenancePage />;
+  return(
+  <>
+    <SpeedInsights />
+    <UnderMaintenancePage />;
+  </>);
 
   return (
-    <><SpeedInsights /><Router>
-      <Routes>
-        <Route
-          path="/"
-          element={token ? (
-            <Navigate to="/grades" replace />
-          ) : (
-            <Login onLoginSuccess={handleLoginSuccess} />
-          )} />
-        <Route
-          path="/grades"
-          element={token ? (
-            <Grades token={token!} user={user!} onLogout={handleLogout} />
-          ) : (
-            <Navigate to="/" replace />
-          )} />
-      </Routes>
-    </Router></>
+    <>
+      <SpeedInsights />
+      <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              token ? (
+                <Navigate to="/grades" replace />
+              ) : (
+                <Login onLoginSuccess={handleLoginSuccess} />
+              )
+            }
+          />
+          <Route
+            path="/grades"
+            element={
+              token ? (
+                <Grades token={token!} user={user!} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+        </Routes>
+      </Router>
+    </>
   );
 }
