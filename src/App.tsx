@@ -3,6 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { useState} from "react";
 import Login from "./pages/LoginPage";
 import Grades from "./pages/StudentGradesViewPage";
+import UnderMaintenancePage from "./pages/UnderMaintenancePage";
 
 export default function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem("session_token"));
@@ -22,7 +23,7 @@ export default function App() {
   }
 
   // Maintenance mode toggle
-  //return <UnderMaintenancePage />;
+  return <UnderMaintenancePage />;
 
   return (
     <><SpeedInsights /><Router>
